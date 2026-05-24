@@ -945,20 +945,7 @@ export default function HomePlanner() {
         </p>
       </div>
 
-      <SummaryBar
-        selectedProjects={selectedProjects}
-        budgetTier={budgetTier}
-        onBudgetTierChange={setBudgetTier}
-        onOpenAnalysis={() => setShowAnalysis(true)}
-      />
-      <InvestmentModal
-        isOpen={showAnalysis}
-        onClose={() => setShowAnalysis(false)}
-        initialTier={budgetTier}
-        onTierChange={setBudgetTier}
-      />
-
-      <div className="border rounded-lg p-3 bg-gray-50 mt-3">
+      <div className="border rounded-lg p-3 bg-gray-50 mb-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-gray-700">Quick start</span>
           {activePreset && (
@@ -982,6 +969,19 @@ export default function HomePlanner() {
           ))}
         </div>
       </div>
+
+      <SummaryBar
+        selectedProjects={selectedProjects}
+        budgetTier={budgetTier}
+        onBudgetTierChange={setBudgetTier}
+        onOpenAnalysis={() => setShowAnalysis(true)}
+      />
+      <InvestmentModal
+        isOpen={showAnalysis}
+        onClose={() => setShowAnalysis(false)}
+        initialTier={budgetTier}
+        onTierChange={setBudgetTier}
+      />
 
       <div className="flex gap-1 mt-3 mb-3 bg-gray-100 rounded-lg p-1 overflow-x-auto">
         {tabs.map((tab) => (
