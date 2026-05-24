@@ -43,8 +43,6 @@ const PROJECTS = [
     urgency: "high",
     recommendedYear: 2026,
     dependencies: [],
-    babyRelevant: true,
-    babyNote: "Must be done BEFORE baby arrives. Cracking floors + construction dust are not baby-compatible.",
   },
   {
     id: "bedroom",
@@ -64,8 +62,6 @@ const PROJECTS = [
     urgency: "medium",
     recommendedYear: 2026,
     dependencies: ["foundation"],
-    babyRelevant: true,
-    babyNote: "More closet/storage space is critical with a child. Best done before baby.",
   },
   {
     id: "adu",
@@ -85,9 +81,6 @@ const PROJECTS = [
     urgency: "low",
     recommendedYear: 2028,
     dependencies: [],
-    babyRelevant: true,
-    babyNote: "Huge quality of life upgrade with a child — dedicated office lets you WFH without losing a bedroom.",
-    mutuallyExclusive: "extension",
   },
   {
     id: "extension",
@@ -107,9 +100,6 @@ const PROJECTS = [
     urgency: "low",
     recommendedYear: 2028,
     dependencies: ["foundation"],
-    babyRelevant: true,
-    babyNote: "Extra bedroom directly solves the space problem, but less flexible than an ADU long-term.",
-    mutuallyExclusive: "adu",
   },
   {
     id: "backyard",
@@ -129,8 +119,6 @@ const PROJECTS = [
     urgency: "low",
     recommendedYear: 2027,
     dependencies: [],
-    babyRelevant: false,
-    babyNote: "",
   },
   {
     id: "kitchen",
@@ -150,8 +138,6 @@ const PROJECTS = [
     urgency: "low",
     recommendedYear: 2027,
     dependencies: ["foundation"],
-    babyRelevant: true,
-    babyNote: "Better storage = less clutter = saner home with a baby. But not urgent pre-baby.",
   },
   {
     id: "fixtures",
@@ -171,8 +157,6 @@ const PROJECTS = [
     urgency: "low",
     recommendedYear: 2029,
     dependencies: [],
-    babyRelevant: false,
-    babyNote: "",
   },
 ];
 
@@ -323,12 +307,6 @@ function ProjectCard({ project, selected, onToggle, disabled, disabledReason }) 
                   <span className="text-gray-600">
                     {project.dependencies.map((d) => PROJECTS.find((p) => p.id === d)?.name).join(", ")}
                   </span>
-                </div>
-              )}
-              {project.babyRelevant && (
-                <div className="bg-pink-50 rounded p-2 mt-1">
-                  <span className="font-medium text-pink-800">👶 Baby planning note:</span>{" "}
-                  <span className="text-pink-700">{project.babyNote}</span>
                 </div>
               )}
               <div>
@@ -665,7 +643,7 @@ function InvestmentAnalysis({ initialTier = 1, onTierChange }) {
         </div>
         <div className="bg-gray-50 rounded p-3 mt-3">
           <p className="text-xs text-gray-700">
-            <span className="font-semibold">The nuance:</span> Stock market returns are pure financial gain but don't improve your daily life. Home improvements at the {tier.label} level recover ~{Math.round((tier.resaleValueAdd / tier.amount) * 100)}% of cost in resale value, meaning you "lose" ~{formatCurrency(tier.amount - tier.resaleValueAdd)} vs. keeping the cash — but you get to <span className="italic">live in</span> the improvement every day. With a baby coming, the quality-of-life value is real and hard to put a dollar figure on.
+            <span className="font-semibold">The nuance:</span> Stock market returns are pure financial gain but don't improve your daily life. Home improvements at the {tier.label} level recover ~{Math.round((tier.resaleValueAdd / tier.amount) * 100)}% of cost in resale value, meaning you "lose" ~{formatCurrency(tier.amount - tier.resaleValueAdd)} vs. keeping the cash — but you get to <span className="italic">live in</span> the improvement every day. The quality-of-life value is real and hard to put a dollar figure on.
           </p>
           {tier.amount >= 350000 && (
             <p className="text-xs text-gray-700 mt-2">
@@ -755,7 +733,7 @@ function InvestmentAnalysis({ initialTier = 1, onTierChange }) {
           {tier.amount >= 350000 && (
             <div className="bg-amber-50 rounded p-3">
               <p className="text-xs text-amber-800">
-                <span className="font-semibold">Watch the cash reserves.</span> At {tier.label}, you'd need to sell meaningful Google stock or spread funding across 2-3 years of RSU vests. The key rule: keep at least 6 months of expenses (~$50k) liquid at all times, especially with a baby on the way. Phase the spending to match your vesting schedule.
+                <span className="font-semibold">Watch the cash reserves.</span> At {tier.label}, you'd need to sell meaningful Google stock or spread funding across 2-3 years of RSU vests. The key rule: keep at least 6 months of expenses (~$50k) liquid at all times. Phase the spending to match your vesting schedule.
               </p>
             </div>
           )}
@@ -928,10 +906,6 @@ export default function HomePlanner() {
         if (id === "foundation") return next;
         next.delete(id);
       } else {
-        const proj = PROJECTS.find((p) => p.id === id);
-        if (proj.mutuallyExclusive) {
-          next.delete(proj.mutuallyExclusive);
-        }
         next.add(id);
       }
       return next;
@@ -984,6 +958,31 @@ export default function HomePlanner() {
         onTierChange={setBudgetTier}
       />
 
+      <div className="border rounded-lg p-3 bg-gray-50 mt-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-gray-700">Quick start</span>
+          {activePreset && (
+            <span className="text-xs text-gray-500 italic">{PRESETS[activePreset].description}</span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {Object.entries(PRESETS).map(([key, preset]) => (
+            <button
+              key={key}
+              onClick={() => applyPreset(key)}
+              className={`flex-1 text-xs font-medium py-2 px-2 rounded-lg transition-all border ${
+                activePreset === key
+                  ? "border-blue-400 bg-blue-50 text-blue-800"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              <span className="block text-base leading-none mb-1">{preset.emoji}</span>
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex gap-1 mt-3 mb-3 bg-gray-100 rounded-lg p-1 overflow-x-auto">
         {tabs.map((tab) => (
           <button
@@ -1002,51 +1001,16 @@ export default function HomePlanner() {
 
       {activeTab === "projects" && (
         <div className="space-y-3">
-          <div className="border rounded-lg p-3 bg-gray-50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-gray-700">Quick start</span>
-              {activePreset && (
-                <span className="text-xs text-gray-500 italic">{PRESETS[activePreset].description}</span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {Object.entries(PRESETS).map(([key, preset]) => (
-                <button
-                  key={key}
-                  onClick={() => applyPreset(key)}
-                  className={`flex-1 text-xs font-medium py-2 px-2 rounded-lg transition-all border ${
-                    activePreset === key
-                      ? "border-blue-400 bg-blue-50 text-blue-800"
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-                  }`}
-                >
-                  <span className="block text-base leading-none mb-1">{preset.emoji}</span>
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {PROJECTS.map((project) => {
-            const isSelected = selected.has(project.id);
-            let disabled = false;
-            let disabledReason = "";
-            if (project.mutuallyExclusive && selected.has(project.mutuallyExclusive)) {
-              const other = PROJECTS.find((p) => p.id === project.mutuallyExclusive);
-              disabled = true;
-              disabledReason = `Can't combine with "${other?.name}" — deselect it first.`;
-            }
-            return (
+          {PROJECTS.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
-                selected={isSelected}
+                selected={selected.has(project.id)}
                 onToggle={handleToggle}
-                disabled={disabled}
-                disabledReason={disabledReason}
+                disabled={false}
+                disabledReason=""
               />
-            );
-          })}
+          ))}
         </div>
       )}
 
@@ -1054,14 +1018,9 @@ export default function HomePlanner() {
         <div className="border rounded-lg p-4 bg-white">
           <h3 className="font-semibold text-sm text-gray-900 mb-3">Recommended 5-Year Timeline</h3>
           <p className="text-xs text-gray-500 mb-4">
-            Based on priority, dependencies, and baby timeline. Projects are assigned to their recommended year — you can adjust by changing selections.
+            Based on priority and dependencies. Projects are assigned to their recommended year — you can adjust by changing selections.
           </p>
           <TimelineView selectedProjects={selectedProjects} />
-          <div className="mt-4 bg-pink-50 rounded-lg p-3">
-            <p className="text-xs text-pink-800">
-              <span className="font-semibold">👶 Key constraint:</span> Foundation + floors and bedroom expansion should ideally be completed before baby arrives (est. 2027-2028). Construction dust and open floors are not safe for infants.
-            </p>
-          </div>
         </div>
       )}
 
@@ -1083,7 +1042,7 @@ export default function HomePlanner() {
           <div className="border rounded-lg p-4 bg-white">
             <h4 className="font-semibold text-gray-900 text-sm mb-2">When Moving DOES Make Sense</h4>
             <ul className="text-xs text-gray-700 space-y-1.5">
-              <li>• You need 3+ bedrooms AND a home office AND don't want construction chaos with a baby</li>
+              <li>• You need 3+ bedrooms AND a home office AND don't want to deal with construction chaos</li>
               <li>• You find a turnkey 1,400-1,600sqft home under $1.1M in the area (unlikely but possible)</li>
               <li>• Mortgage rates drop below 5% making the rate differential less painful</li>
               <li>• Your income increases substantially and the higher payment isn't a concern</li>
@@ -1207,7 +1166,7 @@ export default function HomePlanner() {
           </button>
         </div>
         <p className="text-xs text-gray-400 text-center">
-          Last updated March 2026 · Estimates based on LA market data · Not financial advice
+          Last updated May 2026 · Estimates based on LA market data · Not financial advice
         </p>
       </div>
     </div>
